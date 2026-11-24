@@ -66,6 +66,7 @@ var crypto = require("crypto"),
     aaa100080: 1,
     aaa100082: 1,
     aaa100083: 1,
+    portal200001: 1,
   },
   SESSION_MAX_AGE_MS = 216e5,
   ROOT_CODES = {
@@ -591,7 +592,7 @@ function call(e, r, t, n) {
           (i === GEO_BLOCKED || isVerRefused || l || u) &&
           (t._seedTries || 0) < SEED_RESCUE_ROUNDS
         ) {
-          SESSION_DEAD[i] &&
+          (SESSION_DEAD[i] || isVerRefused) &&
             session.usesSeed &&
             session.seed &&
             markSeedDead(session.seed);
@@ -601,7 +602,17 @@ function call(e, r, t, n) {
               session.seed &&
               (d[seedIdentity(session.seed)] = !0),
             rescueSeed(d, function (s, o) {
-              if (!o) return n(a);
+              if (!o) {
+                session.ready = !1;
+                session.userId = "";
+                session.userToken = "";
+                session.snToken = "";
+                session.seed = null;
+                session.usesSeed = !1;
+                session.at = 0;
+                clearStoredSession();
+                return n(a);
+              }
               ((t._seedTried = d),
                 (t._seedTries = (t._seedTries || 0) + 1),
                 (t._sessionRetried = !1),
@@ -617,6 +628,16 @@ function call(e, r, t, n) {
                 call(e, r, t, n));
             })
           );
+        }
+        if (a && (isVerRefused || l) && (session.usesSeed || session.ready)) {
+          session.ready = !1;
+          session.userId = "";
+          session.userToken = "";
+          session.snToken = "";
+          session.seed = null;
+          session.usesSeed = !1;
+          session.at = 0;
+          clearStoredSession();
         }
         n(a, o);
       });
@@ -644,6 +665,7 @@ var SESSION_FILE = "/tmp/xuper-session.json",
   SESSION_FILE_MS = 54e5;
 function saveStoredSession() {
   if (!session.userId || !session.userToken) return;
+  if (session.usesSeed) return;
   writeJsonSafe(SESSION_FILE, {
     sn: session.sn,
     userId: session.userId,
@@ -657,6 +679,7 @@ function loadStoredSession() {
     var f = JSON.parse(fs.readFileSync(SESSION_FILE, "utf8"));
     if (!f || !f.userId || !f.userToken || !f.at) return !1;
     if (Date.now() - Number(f.at) > SESSION_FILE_MS) return !1;
+    if (SESSION_DEAD[f.userId]) return !1;
     ((session.sn = String(f.sn || "")),
       (session.userId = String(f.userId)),
       (session.userToken = String(f.userToken)),
@@ -2637,6 +2660,7 @@ module.exports = {
   post: post,
   ensureSession: ensureSession,
   setManualSession: setManualSession,
+  resetSessionAfterLiveFailure: resetSessionAfterLiveFailure,
   setKinoBearer: setKinoBearer,
   session: session,
   seedStatus: function () {

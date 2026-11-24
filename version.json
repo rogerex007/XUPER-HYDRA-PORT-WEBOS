@@ -1,10 +1,10 @@
 {
-  "version": "3.1.82",
+  "version": "3.1.83",
   "name": "XuperTV",
   "minWebos": "1.0.0",
-  "ipkUrl": "https://github.com/cristianco7/XUPER-HYDRA-PORT-WEBOS/releases/download/v3.1.82/com.webosflux.xuptertv.fidelity_3.1.82_all.ipk",
-  "sha256": "850d0b0d81659d13e72cb51c7e0b6fb94d229714f48948e618f9ca66753ce621",
-  "changelog": "v3.1.82: Mitigación automática de cortes nocturnos en TV en Vivo (portal200001): (1) Rotación suave y automática de sesiones/semillas en segundo plano ante portal200001 sin congelar la reproducción ni quemar el pool de semillas; (2) Reintento automático de conexión en el reproductor de canales en vivo con mensajes limpios en español; (3) Corrección de validación de semillas en mint-seeds.js independiente de MovieZone para garantizar semillas 100% activas.",
+  "ipkUrl": "https://github.com/cristianco7/XUPER-HYDRA-PORT-WEBOS/releases/download/v3.1.83/com.webosflux.xuptertv.fidelity_3.1.83_all.ipk",
+  "sha256": "116bf3acbe3771a5ff370e63c758153890b4207e416f6b8c77bbc5200b828e45",
+  "changelog": "v3.1.83: Corrección crítica de envenenamiento de sesión y cortes de reproducción: (1) Eliminación de persistencia de semillas en /tmp/xuper-session.json para evitar que una semilla caducada bloquee permanentemente el televisor tras reiniciarlo; (2) Inclusión de portal200001 en SESSION_DEAD con purga inmediata de tokens revocados tanto en memoria como en disco; (3) Exportación y ejecución garantizada de resetSessionAfterLiveFailure; (4) Ampliación del recolector de proxies en tools/mint-seeds.js con más de 3.000 fuentes para mantener el pool de rescate siempre activo.",
   "releaseDate": "2026-11-24",
-  "releasedAt": "2026-11-24T05:05:00Z"
+  "releasedAt": "2026-11-24T06:30:00Z"
 }
